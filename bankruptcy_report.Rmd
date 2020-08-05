@@ -3,7 +3,9 @@ title: "Lab 40: Docker for Data Science"
 subtitle: "Reproducible Bankruptcy Classifier Analysis with Docker"
 author: "Business Science"
 date: "8/4/2020"
-output: html_document
+output: 
+    html_document:
+        theme: flatly
 ---
 
 ```{r setup, include=FALSE}
