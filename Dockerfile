@@ -44,7 +44,10 @@ RUN apt-get update -qq && apt-get -y --no-install-recommends install \
     libssh2-1-dev \
     unixodbc-dev \
 #    libcurl4-openssl-dev \
-    libssl-dev
+    libssl-dev \
+
+    # rstan dependencies
+    libnlopt-dev
 
 
 
@@ -60,7 +63,8 @@ RUN apt-get update -qq \
 RUN install2.r --error --deps TRUE \
     usethis \
     tidyquant \
-    plotly
+    plotly \
+    embed
 
 
 RUN R -e "devtools::install_version('h2o', version = '3.30.0.1', dependencies = TRUE)"

@@ -57,7 +57,7 @@ h2o.init()
 
 ```{r}
 path <- file.path(rprojroot::find_rstudio_root_file(),
-                  "00_production_model/DRF_model_R_1596571310829_25797")
+                  "00_production_model/PROD_H2O_MODEL")
 
 h2o_model <- h2o.loadModel(path)
 ```
@@ -93,7 +93,7 @@ plot_data_tbl <- umap_data_tbl %>%
         "
         Company ID: {.id}
         Class: {class}
-        Probability: {scales::percent(p1, accuracy = 0.1)}
+        Bankruptcy Probability: {scales::percent(p1, accuracy = 0.1)}
         Attr 39 Profit on Sales / Sales: {Attr39}
         Attr 26 (net profit + depreciation) / total liabilities: {Attr26}
         Attr 22 profit on operating activities / total assets: {Attr22}
