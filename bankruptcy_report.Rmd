@@ -3,9 +3,7 @@ title: "Lab 40: Docker for Data Science"
 subtitle: "Reproducible Bankruptcy Classifier Analysis with Docker"
 author: "Business Science"
 date: "8/4/2020"
-output: 
-    html_document:
-        theme: flatly
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -24,6 +22,11 @@ knitr::opts_chunk$set(
 ```{r}
 library(h2o)
 library(tidyverse)
+library(plotly)
+
+# Not in container
+library(recipes)
+library(embed)
 ```
 
 ```{r}
@@ -64,5 +67,45 @@ predictions_tbl <- h2o.predict(h2o_model, newdata = as.h2o(data_prepared_tbl)) %
     as_tibble()
 
 predictions_tbl
+```
+
+# Visualization
+
+```{r}
+recipe_spec <- recipe(class ~ ., data_prepared_tbl) %>%
+    step_normalize(contains("Attr")) %>%
+    step_umap(contains("Attr"), outcome = vars(class), num_comp = 3, seed = c(123, 123))
+
+umap_data_tbl <- recipe_spec %>% prep() %>% juice()
+```
+
+
+```{r}
+# Create tooltip/Hover ----
+plot_data_tbl <- umap_data_tbl %>%
+    bind_cols(
+        data_prepared_tbl %>%
+            rowid_to_column(var = ".id") %>%
+            select(.id, Attr39, Attr56, Attr26, Attr22),
+        predictions_tbl
+    ) %>%
+    mutate(tooltip = str_glue(
+        "
+        Company ID: {.id}
+        Class: {class}
+        Probability: {scales::percent(p1, accuracy = 0.1)}
+        Attr 39 Profit on Sales / Sales: {Attr39}
+        Attr 26 (net profit + depreciation) / total liabilities: {Attr26}
+        Attr 22 profit on operating activities / total assets: {Attr22}
+        Attr56 (sales - cost of products sold) / sales: {Attr56}
+        "
+    ))
+
+# Plotly Visualization ----
+plot_data_tbl %>%
+    plot_ly(x = ~ umap_1, y = ~ umap_2, z = ~ umap_3,
+            color = ~ class, colors = c('#BF382A', '#0C4B8E'),
+            hovertemplate = ~ tooltip) %>%
+    add_markers(opacity = 0.5)
 ```
 
