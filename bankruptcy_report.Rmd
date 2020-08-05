@@ -1,0 +1,66 @@
+---
+title: "Lab 40: Docker for Data Science"
+subtitle: "Reproducible Bankruptcy Classifier Analysis with Docker"
+author: "Business Science"
+date: "8/4/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo    = TRUE,
+    message = FALSE,
+    warning = FALSE,
+    paged.print = FALSE, 
+    root.dir = rprojroot::find_rstudio_root_file()
+)
+```
+
+# Bankruptcy Classifier
+
+
+```{r}
+library(h2o)
+library(tidyverse)
+```
+
+```{r}
+data_prepared_tbl <- read_rds("00_data/data_prepared_tbl.rds")
+data_prepared_tbl
+```
+
+```{r}
+data_dictionary_raw_tbl <- read_rds("00_data/data_dictionary_raw_tbl.rds")
+
+data_dictionary_tbl <- data_dictionary_raw_tbl %>%
+    separate(
+        `Attribute.Information:`,
+        into = c("id", "desc"),
+        sep = " ",
+        extra = "merge"
+    ) %>%
+    mutate(id = str_replace(id, "X", "Attr"))
+
+data_dictionary_tbl
+```
+
+# H2O Prediction Analysis
+
+```{r}
+h2o.init()
+```
+
+```{r}
+path <- file.path(rprojroot::find_rstudio_root_file(),
+                  "00_production_model/DRF_model_R_1596571310829_25797")
+
+h2o_model <- h2o.loadModel(path)
+```
+
+```{r}
+predictions_tbl <- h2o.predict(h2o_model, newdata = as.h2o(data_prepared_tbl)) %>%
+    as_tibble()
+
+predictions_tbl
+```
+
