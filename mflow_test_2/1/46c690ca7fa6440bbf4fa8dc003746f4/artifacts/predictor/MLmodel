@@ -1,7 +1,0 @@
-utc_time_created: 20-08-04T21:25:18.18.65
-run_id: 46c690ca7fa6440bbf4fa8dc003746f4
-artifact_path: predictor
-flavors:
-  crate:
-    version: 0.1.0
-    model: crate.bin
