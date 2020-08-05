@@ -2,7 +2,7 @@
 title: "Lab 40: Docker for Data Science"
 subtitle: "Reproducible Bankruptcy Classifier Analysis with Docker"
 author: "Business Science"
-date: "8/4/2020"
+date: "8/5/2020"
 output: html_document
 ---
 
@@ -16,8 +16,14 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Bankruptcy Classifier
+# Reproducible Bankruptcy Classifier Analysis
 
+```{r, echo=F}
+knitr::include_graphics("img/reproducible_report.jpg")
+```
+
+
+# Libraries
 
 ```{r}
 library(h2o)
@@ -29,10 +35,16 @@ library(recipes)
 library(embed)
 ```
 
+# Data
+
+### Bankruptcy Classification Features
+
 ```{r}
 data_prepared_tbl <- read_rds("00_data/data_prepared_tbl.rds")
 data_prepared_tbl
 ```
+
+### Bankruptcy Classification Feature Descriptions
 
 ```{r}
 data_dictionary_raw_tbl <- read_rds("00_data/data_dictionary_raw_tbl.rds")
@@ -55,12 +67,16 @@ data_dictionary_tbl
 h2o.init()
 ```
 
+### Load Production Model
+
 ```{r}
 path <- file.path(rprojroot::find_rstudio_root_file(),
                   "00_production_model/PROD_H2O_MODEL")
 
 h2o_model <- h2o.loadModel(path)
 ```
+
+### Make Predictions
 
 ```{r}
 predictions_tbl <- h2o.predict(h2o_model, newdata = as.h2o(data_prepared_tbl)) %>%
@@ -69,7 +85,10 @@ predictions_tbl <- h2o.predict(h2o_model, newdata = as.h2o(data_prepared_tbl)) %
 predictions_tbl
 ```
 
-# Visualization
+# Bankruptcy UMAP Visualization
+
+
+### Apply UMAP
 
 ```{r}
 recipe_spec <- recipe(class ~ ., data_prepared_tbl) %>%
@@ -77,8 +96,11 @@ recipe_spec <- recipe(class ~ ., data_prepared_tbl) %>%
     step_umap(contains("Attr"), outcome = vars(class), num_comp = 3, seed = c(123, 123))
 
 umap_data_tbl <- recipe_spec %>% prep() %>% juice()
+umap_data_tbl
 ```
 
+
+### Plotly Visualization
 
 ```{r}
 # Create tooltip/Hover ----
